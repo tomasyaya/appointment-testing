@@ -18,11 +18,11 @@ describe("Appointment", () => {
     render(<Appointment customer={customer} />, container);
     expect(container.textContent).toMatch("tomas");
   });
-  it("render another customer", () => {
-    customer = { firstName: "jordan" };
-    render(<Appointment customer={customer} />, container);
-    expect(container.textContent).toMatch("jordan");
-  });
+  // it("render another customer", () => {
+  //   customer = { firstName: "jordan" };
+  //   render(<Appointment customer={customer} />, container);
+  //   expect(container.textContent).toMatch("jordan");
+  // });
 });
 
 describe("AppointmentDayView", () => {
@@ -36,10 +36,10 @@ describe("AppointmentDayView", () => {
   beforeEach(() => {
     container = document.createElement("div");
   });
-  it("renders a div with the right ID", () => {
-    render(<AppointmentsDayView appointments={[]} />, container);
-    expect(container.querySelector("div#appointmentsDayView")).not.toBeNull();
-  });
+  // it("renders a div with the right ID", () => {
+  //   render(<AppointmentsDayView appointments={[]} />, container);
+  //   expect(container.querySelector("div#appointmentsDayView")).not.toBeNull();
+  // });
   // it("initially shows a message if there is no appointments", () => {
   //   render(<AppointmentsDayView appointments={[]} />, container);
   //   expect(container.textContent).toMatch(
