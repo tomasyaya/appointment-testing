@@ -98,18 +98,32 @@ describe("Appointment form", () => {
     });
   };
 
-  const itSavesNewValueWhenSubmited = formId => {
-    it("saves new value when submited", () => {});
+  const itSavesNewValueWhenSubmited = (formId, fieldName, newService) => {
+    it("saves new value when submited", async () => {
+      expect.hasAssertions();
+      render(
+        <AppointmentForm
+          onSubmit={service => {
+            expect(service).toEqual(newService);
+          }}
+        />
+      );
+      await ReactTestUtils.Simulate.change(field(fieldName), {
+        target: { value: newService }
+      });
+      await ReactTestUtils.Simulate.submit(form(formId));
+    });
   };
 
   describe("service field", () => {
-    // itRendersAForm();
-    // itRendersSelectBox();
-    // itInitiallyHasEmptyValue("");
-    // itListAllServices();
-    // itPreSelectExistingValue();
-    // itRendersALabel("service");
-    // itAssignsIdThatMatchesLabel("service");
+    itRendersAForm();
+    itRendersSelectBox();
+    itInitiallyHasEmptyValue("");
+    itListAllServices();
+    itPreSelectExistingValue();
+    itRendersALabel("service");
+    itAssignsIdThatMatchesLabel("service");
     itSavesExistingValueWhenSubmited("appointment", "cut");
+    itSavesNewValueWhenSubmited("appointment", "service", "beard trim");
   });
 });
