@@ -116,14 +116,63 @@ describe("Appointment form", () => {
   };
 
   describe("service field", () => {
-    itRendersAForm();
-    itRendersSelectBox();
-    itInitiallyHasEmptyValue("");
-    itListAllServices();
-    itPreSelectExistingValue();
-    itRendersALabel("service");
-    itAssignsIdThatMatchesLabel("service");
-    itSavesExistingValueWhenSubmited("appointment", "cut");
-    itSavesNewValueWhenSubmited("appointment", "service", "beard trim");
+    // itRendersAForm();
+    // itRendersSelectBox();
+    // itInitiallyHasEmptyValue("");
+    // itListAllServices();
+    // itPreSelectExistingValue();
+    // itRendersALabel("service");
+    // itAssignsIdThatMatchesLabel("service");
+    // itSavesExistingValueWhenSubmited("appointment", "cut");
+    // itSavesNewValueWhenSubmited("appointment", "service", "beard trim");
+  });
+
+  const timeSlotTable = () => container.querySelector("table#time-slots");
+
+  const itRendersATableForTimeSlots = () => {
+    it("renders a table for time slots", () => {
+      render(<AppointmentForm />);
+      expect(timeSlotTable()).not.toBeNull();
+    });
+  };
+
+  const itRendersTimeSlotForEveryHalfHour = () => {
+    it("renders a time slot for every half an hour between the open a closing hours", () => {
+      render(<AppointmentForm salonOpensAt={9} salonClosesAt={11} />);
+      const timesOfDay = timeSlotTable().querySelectorAll("tbody >* th");
+      expect(timesOfDay).toHaveLength(4);
+      expect(timesOfDay[0].textContent).toEqual("09:00");
+      expect(timesOfDay[1].textContent).toEqual("09:30");
+      expect(timesOfDay[3].textContent).toEqual("10:30");
+    });
+  };
+
+  const itRendersAnEmptyCellAtTheStart = () => {
+    it("renders an empty cell at the start of the header row", () => {
+      render(<AppointmentForm />);
+      const headerRow = timeSlotTable().querySelector("thead > tr");
+      expect(headerRow.firstChild.textContent).toEqual("");
+    });
+  };
+
+  const itRendersAWeekOfAvailableDays = () => {
+    it("renders a week of available days", () => {
+      const today = new Date(2018, 11, 1);
+      render(<AppointmentForm today={today} />);
+      const dates = timeSlotTable().querySelectorAll(
+        "thead >* th:not(:first-child)"
+      );
+      expect(dates).toHaveLength(7);
+      expect(dates[0].textContent).toEqual("Sat 01");
+      expect(dates[1].textContent).toEqual("Sun 02");
+      expect(dates[6].textContent).toEqual("Fri 07");
+    });
+  };
+
+  describe("time slot table", () => {
+    itRendersATableForTimeSlots("table#time-slots");
+    itRendersTimeSlotForEveryHalfHour();
+    itRendersAnEmptyCellAtTheStart();
+    itRendersAWeekOfAvailableDays();
   });
 });
