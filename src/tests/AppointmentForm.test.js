@@ -1,6 +1,6 @@
 import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
-import { createContainer } from "./domManipulators.test";
+import { createContainer } from "./domManipulators";
 import { AppointmentForm } from "../components/AppointmentForm";
 
 describe("Appointment form", () => {
@@ -128,6 +128,8 @@ describe("Appointment form", () => {
   });
 
   const timeSlotTable = () => container.querySelector("table#time-slots");
+  const startsAtField = index =>
+    container.querySelectorAll('input[name="startsAt"]')[index];
 
   const itRendersATableForTimeSlots = () => {
     it("renders a table for time slots", () => {
@@ -169,10 +171,92 @@ describe("Appointment form", () => {
     });
   };
 
+  const itRendersARadioButtonForSlot = () => {
+    it("renders a radio button for each time slot", () => {
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) }
+      ];
+      render(
+        <AppointmentForm
+          availableTimeSlots={availableTimeSlots}
+          today={today}
+        />
+      );
+      const cells = timeSlotTable().querySelectorAll("td");
+      expect(cells[0].querySelector('input[type="radio"]')).not.toBeNull();
+      expect(cells[7].querySelector('input[type="radio"]')).not.toBeNull();
+    });
+  };
+
+  const itRenderNoRadioButtons = () => {
+    it("renders no radio button for unavailable time slots", () => {
+      render(<AppointmentForm availableTimeSlots={[]} />);
+      const timesOfDay = timeSlotTable().querySelectorAll("input");
+      expect(timesOfDay).toHaveLength(0);
+    });
+  };
+
+  const itSetsRadioButtonValuesToAppointments = () => {
+    it("sets radio button values to the index of the corresponding appointment", () => {
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) }
+      ];
+      render(
+        <AppointmentForm
+          availableTimeSlots={availableTimeSlots}
+          today={today}
+        />
+      );
+      expect(startsAtField(0).value).toEqual(
+        availableTimeSlots[0].startsAt.toString()
+      );
+      expect(startsAtField(0).value).toEqual(
+        availableTimeSlots[0].startsAt.toString()
+      );
+    });
+  };
+
+  const itSavesNewValueWhenSubmitted = () => {
+    it("saves new value when submitted", async () => {
+      expect.hasAssertions();
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) }
+      ];
+      render(
+        <AppointmentForm
+          availableTimeSlots={availableTimeSlots}
+          startsAt={availableTimeSlots[0].startsAt}
+          today={today}
+          onSubmit={({ startsAt }) => {
+            expect(startsAt).toEqual(availableTimeSlots[1].startsAt);
+            expect(startsAtField(0).checked).toEqual(false);
+          }}
+        />
+      );
+      ReactTestUtils.Simulate.change(startsAtField(1), {
+        target: {
+          value: availableTimeSlots[1].startsAt.toString(),
+          name: "startsAt"
+        }
+      });
+      ReactTestUtils.Simulate.submit(form("appointment"));
+    });
+  };
+
   describe("time slot table", () => {
-    itRendersATableForTimeSlots("table#time-slots");
-    itRendersTimeSlotForEveryHalfHour();
-    itRendersAnEmptyCellAtTheStart();
-    itRendersAWeekOfAvailableDays();
+    // itRendersATableForTimeSlots("table#time-slots");
+    // itRendersTimeSlotForEveryHalfHour();
+    // itRendersAnEmptyCellAtTheStart();
+    // itRendersAWeekOfAvailableDays();
+    itRendersARadioButtonForSlot();
+    itRenderNoRadioButtons();
+    itSetsRadioButtonValuesToAppointments();
+    itSavesNewValueWhenSubmitted();
   });
 });

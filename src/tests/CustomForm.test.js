@@ -1,6 +1,6 @@
 import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
-import { createContainer } from "./domManipulators.test";
+import { createContainer } from "./domManipulators";
 import { CustomForm } from "../components/CutomForm";
 
 describe("Custom form", () => {
@@ -120,6 +120,6 @@ describe("Custom form", () => {
   });
 
   describe("submit button", () => {
-    // itHasASubmitButton();
+    itHasASubmitButton();
   });
 });
