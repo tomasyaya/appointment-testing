@@ -6,6 +6,27 @@ import { CustomForm } from "../components/CutomForm";
 describe("Custom form", () => {
   let render, container;
 
+  const spy = () => {
+    let receivedArgument;
+    return {
+      fn: (...args) => (receivedArgument = args),
+      receivedArguments: () => receivedArgument,
+      receivedArgument: n => receivedArgument[n]
+    };
+  };
+
+  expect.extend({
+    toHaveBeenCalled(received) {
+      if (received.receivedArguments() === undefined) {
+        return {
+          pass: false,
+          message: () => "Spy was not called"
+        };
+      }
+      return { pass: true, message: () => "Spy was called" };
+    }
+  });
+
   beforeEach(() => {
     ({ render, container } = createContainer());
   });
@@ -51,36 +72,35 @@ describe("Custom form", () => {
     });
   };
 
-  const itSavesExistingValueWhenSubmited = (customerName, formId) => {
+  const itSavesExistingValueWhenSubmited = fieldName => {
     it("saves existing value when submited", async () => {
-      expect.hasAssertions();
-      render(
-        <CustomForm
-          firstName="Ashley"
-          onSubmit={({ firstName }) => {
-            expect(firstName).toEqual("Ashley");
-          }}
-        />
-      );
-      await ReactTestUtils.Simulate.submit(form("customer"));
+      let fetchSpy = spy();
+      render(<CustomForm {...{ [fieldName]: "value" }} fetch={fetchSpy.fn} />);
+
+      ReactTestUtils.Simulate.change(field(fieldName), {
+        target: { value: "value", name: fieldName }
+      });
+      ReactTestUtils.Simulate.submit(form("customer"));
+      const fetchOpts = fetchSpy.receivedArgument(1);
+      expect(JSON.parse(fetchOpts.body)[fieldName]).toEqual("value");
     });
   };
 
   const itSavesNewValueWhenSubmited = (fieldName, formId, value) => {
     it("saves new value when submited", async () => {
-      expect.hasAssertions();
+      let fetchSpy = spy();
       render(
         <CustomForm
-          {...[fieldName]}
-          onSubmit={fields => {
-            expect(fields[fieldName]).toEqual(value);
-          }}
+          {...{ [fieldName]: "existing-value" }}
+          fetch={fetchSpy.fn}
         />
       );
-      await ReactTestUtils.Simulate.change(field(fieldName), {
+      ReactTestUtils.Simulate.change(field(fieldName), {
         target: { value: value, name: fieldName }
       });
-      await ReactTestUtils.Simulate.submit(form(formId));
+      ReactTestUtils.Simulate.submit(form(formId));
+      const fetchOpts = fetchSpy.receivedArgument(1);
+      expect(JSON.parse(fetchOpts.body)[fieldName]).toEqual(value);
     });
   };
 
@@ -92,34 +112,51 @@ describe("Custom form", () => {
     });
   };
 
+  const itCallsFetchWithRightProperties = () => {
+    it("calls fetch with the right properties when submitting data", async () => {
+      const fetchSpy = spy();
+      render(<CustomForm fetch={fetchSpy.fn} onSubmit={() => {}} />);
+      ReactTestUtils.Simulate.submit(form("customer"));
+      expect(fetchSpy).toHaveBeenCalled();
+      expect(fetchSpy.receivedArgument(0)).toEqual("/customers");
+      const fetchOpts = fetchSpy.receivedArgument(1);
+      expect(fetchOpts.method).toEqual("POST");
+      expect(fetchOpts.credentials).toEqual("same-origin");
+      expect(fetchOpts.headers).toEqual({
+        "Content-Type": "application/json"
+      });
+    });
+  };
+
   describe("first name field", () => {
-    // itRendersATextBox("firstName");
-    // itIncludesTheExistingValue("firstName");
-    // itRendersALabel("firstName", "First name");
-    // itAssignsAnIdThatMatchesTheLabelId("firstName");
-    // itSavesExistingValueWhenSubmited("Ashley", "customer");
-    // itSavesNewValueWhenSubmited("firstName", "customer", "Jamie");
+    itRendersATextBox("firstName");
+    itIncludesTheExistingValue("firstName");
+    itRendersALabel("firstName", "First name");
+    itAssignsAnIdThatMatchesTheLabelId("firstName");
+    itSavesExistingValueWhenSubmited("firstName");
+    itSavesNewValueWhenSubmited("firstName", "customer", "Jamie");
   });
 
   describe("last name field", () => {
-    // itRendersATextBox("lastName");
-    // itIncludesTheExistingValue("lastName");
-    // itRendersALabel("lastName", "Last name");
-    // itAssignsAnIdThatMatchesTheLabelId("lastName");
-    // itSavesExistingValueWhenSubmited("Ashley", "customer");
-    // itSavesNewValueWhenSubmited("lastName", "customer", "Jamie");
+    itRendersATextBox("lastName");
+    itIncludesTheExistingValue("lastName");
+    itRendersALabel("lastName", "Last name");
+    itAssignsAnIdThatMatchesTheLabelId("lastName");
+    itSavesExistingValueWhenSubmited("lastName");
+    itSavesNewValueWhenSubmited("lastName", "customer", "Jamie");
   });
 
   describe("last phone field", () => {
-    // itRendersATextBox("phoneNumber");
-    // itIncludesTheExistingValue("phoneNumber");
-    // itRendersALabel("phoneNumber", "Phone number");
-    // itAssignsAnIdThatMatchesTheLabelId("phoneNumber");
-    // itSavesExistingValueWhenSubmited("Ashley", "customer");
-    // itSavesNewValueWhenSubmited("phoneNumber", "customer", "048543");
+    itRendersATextBox("phoneNumber");
+    itIncludesTheExistingValue("phoneNumber");
+    itRendersALabel("phoneNumber", "Phone number");
+    itAssignsAnIdThatMatchesTheLabelId("phoneNumber");
+    itSavesExistingValueWhenSubmited("phoneNumber");
+    itSavesNewValueWhenSubmited("phoneNumber", "customer", "048543");
   });
 
   describe("submit button", () => {
     itHasASubmitButton();
+    itCallsFetchWithRightProperties();
   });
 });

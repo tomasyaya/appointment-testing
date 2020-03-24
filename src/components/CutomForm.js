@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 
-export const CustomForm = ({ firstName, lastName, phoneNumber, onSubmit }) => {
+export const CustomForm = ({ firstName, lastName, phoneNumber, fetch }) => {
   const [customer, setCustomer] = useState({ firstName });
   const handleChange = ({ target }) => {
     setCustomer(customer => ({
@@ -9,8 +9,16 @@ export const CustomForm = ({ firstName, lastName, phoneNumber, onSubmit }) => {
       [target.name]: target.value
     }));
   };
+  const handleSubmit = () => {
+    fetch("/customers", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(customer)
+    });
+  };
   return (
-    <form id="customer" onSubmit={() => onSubmit(customer)}>
+    <form id="customer" onSubmit={handleSubmit}>
       <label htmlFor="firstName">First name</label>
       <input
         id="firstName"
@@ -38,4 +46,8 @@ export const CustomForm = ({ firstName, lastName, phoneNumber, onSubmit }) => {
       <input type="submit" value="Add" />
     </form>
   );
+};
+
+CustomForm.defaultProps = {
+  fetch: async () => {}
 };
