@@ -1,19 +1,32 @@
 import React from "react";
-import ReactTestUtils from "react-dom/test-utils";
+import ReactTestUtils, { act } from "react-dom/test-utils";
 import { createContainer } from "./domManipulators";
 import { CustomForm } from "../components/CutomForm";
 
 describe("Custom form", () => {
-  let render, container;
+  const originalFetch = window.fetch;
+  let render, container, fetchSpy;
 
   const spy = () => {
-    let receivedArgument;
+    let receivedArgument, returnValue;
     return {
-      fn: (...args) => (receivedArgument = args),
+      fn: (...args) => {
+        receivedArgument = args;
+        return returnValue;
+      },
       receivedArguments: () => receivedArgument,
-      receivedArgument: n => receivedArgument[n]
+      receivedArgument: n => receivedArgument[n],
+      stubReturnValue: value => (returnValue = value)
     };
   };
+
+  const fetchResponseOk = body =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(body)
+    });
+
+  const fetchResponseError = () => Promise.resolve({ ok: false });
 
   expect.extend({
     toHaveBeenCalled(received) {
@@ -29,6 +42,13 @@ describe("Custom form", () => {
 
   beforeEach(() => {
     ({ render, container } = createContainer());
+    fetchSpy = spy();
+    window.fetch = fetchSpy.fn;
+    fetchSpy.stubReturnValue(fetchResponseOk({}));
+  });
+
+  afterEach(() => {
+    window.fetch = originalFetch;
   });
 
   const form = id => container.querySelector(`form[id=${id}]`);
@@ -74,7 +94,6 @@ describe("Custom form", () => {
 
   const itSavesExistingValueWhenSubmited = fieldName => {
     it("saves existing value when submited", async () => {
-      let fetchSpy = spy();
       render(<CustomForm {...{ [fieldName]: "value" }} fetch={fetchSpy.fn} />);
 
       ReactTestUtils.Simulate.change(field(fieldName), {
@@ -88,7 +107,6 @@ describe("Custom form", () => {
 
   const itSavesNewValueWhenSubmited = (fieldName, formId, value) => {
     it("saves new value when submited", async () => {
-      let fetchSpy = spy();
       render(
         <CustomForm
           {...{ [fieldName]: "existing-value" }}
@@ -114,7 +132,6 @@ describe("Custom form", () => {
 
   const itCallsFetchWithRightProperties = () => {
     it("calls fetch with the right properties when submitting data", async () => {
-      const fetchSpy = spy();
       render(<CustomForm fetch={fetchSpy.fn} onSubmit={() => {}} />);
       ReactTestUtils.Simulate.submit(form("customer"));
       expect(fetchSpy).toHaveBeenCalled();
@@ -125,6 +142,58 @@ describe("Custom form", () => {
       expect(fetchOpts.headers).toEqual({
         "Content-Type": "application/json"
       });
+    });
+  };
+
+  const itNotifiesOnSaveWhenSubmitted = () => {
+    it("notifies on save when form is submitted", async () => {
+      const customer = { id: 123 };
+      fetchSpy.stubReturnValue(fetchResponseOk(customer));
+      const saveSpy = spy();
+      render(<CustomForm onSave={saveSpy.fn} />);
+      await act(async () => {
+        ReactTestUtils.Simulate.submit(form("customer"));
+      });
+      expect(saveSpy).toHaveBeenCalled();
+      expect(saveSpy.receivedArgument(0)).toEqual(customer);
+    });
+  };
+
+  const itDoesNotNotifiyOnSaveOnError = () => {
+    it("does not notify on save if the response return an error", async () => {
+      fetchSpy.stubReturnValue(fetchResponseError());
+      const saveSpy = spy();
+      render(<CustomForm onSave={saveSpy.fn} />);
+      await act(async () => {
+        ReactTestUtils.Simulate.submit(form("customer"));
+      });
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+  };
+
+  const itPreventsDefault = () => {
+    it("prevents the default action when submitting the form ", async () => {
+      const preventsDefaultSpy = spy();
+      render(<CustomForm />);
+      await act(async () => {
+        ReactTestUtils.Simulate.submit(form("customer"), {
+          preventDefault: preventsDefaultSpy.fn
+        });
+      });
+      expect(preventsDefaultSpy).toHaveBeenCalled();
+    });
+  };
+
+  const itRendersErrosMessage = () => {
+    it("renders error message when call fails", async () => {
+      fetchSpy.stubReturnValue(Promise.resolve({ ok: false }));
+      render(<CustomForm />);
+      await act(async () => {
+        ReactTestUtils.Simulate.submit(form("customer"));
+      });
+      const errorElement = container.querySelector(".error");
+      expect(errorElement).not.toBeNull();
+      expect(errorElement.textContent).toMatch("error occurred");
     });
   };
 
@@ -157,6 +226,13 @@ describe("Custom form", () => {
 
   describe("submit button", () => {
     itHasASubmitButton();
+  });
+
+  describe("fetch actions", () => {
     itCallsFetchWithRightProperties();
+    itNotifiesOnSaveWhenSubmitted();
+    itDoesNotNotifiyOnSaveOnError();
+    itPreventsDefault();
+    itRendersErrosMessage();
   });
 });

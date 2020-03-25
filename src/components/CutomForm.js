@@ -1,24 +1,34 @@
 import React from "react";
 import { useState } from "react";
+import { Error } from "./Error";
 
-export const CustomForm = ({ firstName, lastName, phoneNumber, fetch }) => {
+export const CustomForm = ({ firstName, lastName, phoneNumber, onSave }) => {
   const [customer, setCustomer] = useState({ firstName });
+  const [error, setError] = useState(false);
   const handleChange = ({ target }) => {
     setCustomer(customer => ({
       ...customer,
       [target.name]: target.value
     }));
   };
-  const handleSubmit = () => {
-    fetch("/customers", {
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const result = await window.fetch("/customers", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(customer)
     });
+    if (result.ok) {
+      const customerWithId = await result.json();
+      onSave(customerWithId);
+      return;
+    }
+    setError(true);
   };
   return (
     <form id="customer" onSubmit={handleSubmit}>
+      {error ? <Error /> : null}
       <label htmlFor="firstName">First name</label>
       <input
         id="firstName"
@@ -49,5 +59,5 @@ export const CustomForm = ({ firstName, lastName, phoneNumber, fetch }) => {
 };
 
 CustomForm.defaultProps = {
-  fetch: async () => {}
+  onSave: () => {}
 };
