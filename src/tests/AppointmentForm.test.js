@@ -250,10 +250,10 @@ describe("Appointment form", () => {
   };
 
   describe("time slot table", () => {
-    // itRendersATableForTimeSlots("table#time-slots");
-    // itRendersTimeSlotForEveryHalfHour();
-    // itRendersAnEmptyCellAtTheStart();
-    // itRendersAWeekOfAvailableDays();
+    itRendersATableForTimeSlots("table#time-slots");
+    itRendersTimeSlotForEveryHalfHour();
+    itRendersAnEmptyCellAtTheStart();
+    itRendersAWeekOfAvailableDays();
     itRendersARadioButtonForSlot();
     itRenderNoRadioButtons();
     itSetsRadioButtonValuesToAppointments();

@@ -18,11 +18,11 @@ describe("Appointment", () => {
     render(<Appointment customer={customer} />, container);
     expect(container.textContent).toMatch("tomas");
   });
-  // it("render another customer", () => {
-  //   customer = { firstName: "jordan" };
-  //   render(<Appointment customer={customer} />, container);
-  //   expect(container.textContent).toMatch("jordan");
-  // });
+  it("render another customer", () => {
+    customer = { firstName: "jordan" };
+    render(<Appointment customer={customer} />, container);
+    expect(container.textContent).toMatch("jordan");
+  });
 });
 
 describe("AppointmentDayView", () => {
@@ -36,39 +36,39 @@ describe("AppointmentDayView", () => {
   beforeEach(() => {
     container = document.createElement("div");
   });
-  // it("renders a div with the right ID", () => {
-  //   render(<AppointmentsDayView appointments={[]} />, container);
-  //   expect(container.querySelector("div#appointmentsDayView")).not.toBeNull();
-  // });
-  // it("initially shows a message if there is no appointments", () => {
-  //   render(<AppointmentsDayView appointments={[]} />, container);
-  //   expect(container.textContent).toMatch(
-  //     "There are no appointments schedule for today"
-  //   );
-  // });
-  // it("it selects the first appointment by default", () => {
-  //   render(<AppointmentsDayView appointments={appointments} />, container);
-  //   expect(container.textContent).toMatch("Ashley");
-  // });
-  // it("has a button element in each li", () => {
-  //   render(<AppointmentsDayView appointments={appointments} />, container);
-  //   expect(container.querySelectorAll("li > button")).toHaveLength(2);
-  //   expect(container.querySelectorAll("li > button")[0].type).toEqual("button");
-  // });
-  // it("renders another appointment when selected", () => {
-  //   render(<AppointmentsDayView appointments={appointments} />, container);
-  //   const button = container.querySelectorAll("li > button")[1];
-  //   ReactTestUtils.Simulate.click(button);
-  //   expect(container.textContent).toMatch("Jordan");
-  // });
-  // it("renders multiple appointments in an ol element", () => {
-  //   render(<AppointmentsDayView appointments={appointments} />, container);
-  //   expect(container.querySelector("ol").children).toHaveLength(2);
-  // });
-  // it("renders multiple appointments in an li", () => {
-  //   render(<AppointmentsDayView appointments={appointments} />, container);
-  //   expect(container.querySelectorAll("li")).toHaveLength(2);
-  //   expect(container.querySelectorAll("li")[0].textContent).toEqual("12:00");
-  //   expect(container.querySelectorAll("li")[1].textContent).toEqual("13:00");
-  // });
+  it("renders a div with the right ID", () => {
+    render(<AppointmentsDayView appointments={[]} />, container);
+    expect(container.querySelector("div#appointmentsDayView")).not.toBeNull();
+  });
+  it("initially shows a message if there is no appointments", () => {
+    render(<AppointmentsDayView appointments={[]} />, container);
+    expect(container.textContent).toMatch(
+      "There are no appointments schedule for today"
+    );
+  });
+  it("it selects the first appointment by default", () => {
+    render(<AppointmentsDayView appointments={appointments} />, container);
+    expect(container.textContent).toMatch("Ashley");
+  });
+  it("has a button element in each li", () => {
+    render(<AppointmentsDayView appointments={appointments} />, container);
+    expect(container.querySelectorAll("li > button")).toHaveLength(2);
+    expect(container.querySelectorAll("li > button")[0].type).toEqual("button");
+  });
+  it("renders another appointment when selected", () => {
+    render(<AppointmentsDayView appointments={appointments} />, container);
+    const button = container.querySelectorAll("li > button")[1];
+    ReactTestUtils.Simulate.click(button);
+    expect(container.textContent).toMatch("Jordan");
+  });
+  it("renders multiple appointments in an ol element", () => {
+    render(<AppointmentsDayView appointments={appointments} />, container);
+    expect(container.querySelector("ol").children).toHaveLength(2);
+  });
+  it("renders multiple appointments in an li", () => {
+    render(<AppointmentsDayView appointments={appointments} />, container);
+    expect(container.querySelectorAll("li")).toHaveLength(2);
+    expect(container.querySelectorAll("li")[0].textContent).toEqual("12:00");
+    expect(container.querySelectorAll("li")[1].textContent).toEqual("13:00");
+  });
 });
