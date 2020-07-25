@@ -1,28 +1,55 @@
 {
-  "name": "test-app",
+  "name": "appointments",
   "version": "1.0.0",
-  "description": "",
+  "description": "Appointments system",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
     "test": "jest",
-    "build": "webpack"
+    "build-server": "webpack --config webpack-server.config.js",
+    "test-server": "jest --config server/jest.json",
+    "serve": "node dist/server/server.js"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "example.com"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.8.7",
-    "@babel/preset-react": "^7.8.3",
-    "babel-loader": "^8.0.6",
-    "jest": "^25.1.0",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "express-graphql": "^0.7.1",
+    "faker": "^4.1.0",
+    "jest": "^24.1.0",
+    "jest-raw-loader": "^1.0.1",
+    "react-test-renderer": "^16.13.1",
+    "supertest": "^3.4.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/server/"
+    ]
   },
   "dependencies": {
-    "@babel/runtime": "^7.8.7",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
+    "@babel/runtime": "^7.3.4",
+    "express": "^4.16.4",
+    "graphql": "^14.1.1",
+    "morgan": "^1.9.1",
+    "raw-loader": "^1.0.0",
+    "react": "^16.9.0-alpha.0",
+    "react-dom": "^16.9.0-alpha.0",
     "whatwg-fetch": "^3.0.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 67,
+    "jsxBracketSameLine": true
   }
 }

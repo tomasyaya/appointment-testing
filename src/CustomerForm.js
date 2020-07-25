@@ -1,63 +1,81 @@
-import React from "react";
-import { useState } from "react";
-import { Error } from "./Error";
+import React, { useState } from 'react';
 
-export const CustomForm = ({ firstName, lastName, phoneNumber, onSave }) => {
-  const [customer, setCustomer] = useState({ firstName });
+const Error = () => (
+  <div className="error">An error occurred during save.</div>
+);
+
+export const CustomerForm = ({
+  firstName,
+  lastName,
+  phoneNumber,
+  onSave
+}) => {
   const [error, setError] = useState(false);
-  const handleChange = ({ target }) => {
+
+  const [customer, setCustomer] = useState({
+    firstName,
+    lastName,
+    phoneNumber
+  });
+
+  const handleChange = ({ target }) =>
     setCustomer(customer => ({
       ...customer,
       [target.name]: target.value
     }));
-  };
+
   const handleSubmit = async e => {
     e.preventDefault();
-    const result = await window.fetch("/customers", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
+    const result = await window.fetch('/customers', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(customer)
     });
     if (result.ok) {
+      setError(false);
       const customerWithId = await result.json();
       onSave(customerWithId);
-      return;
+    } else {
+      setError(true);
     }
-    setError(true);
   };
+
   return (
     <form id="customer" onSubmit={handleSubmit}>
       {error ? <Error /> : null}
       <label htmlFor="firstName">First name</label>
       <input
-        id="firstName"
         type="text"
         name="firstName"
+        id="firstName"
         value={firstName}
         onChange={handleChange}
       />
+
       <label htmlFor="lastName">Last name</label>
       <input
-        id="lastName"
         type="text"
         name="lastName"
+        id="lastName"
         value={lastName}
         onChange={handleChange}
       />
+
       <label htmlFor="phoneNumber">Phone number</label>
       <input
-        id="phoneNumber"
         type="text"
         name="phoneNumber"
+        id="phoneNumber"
         value={phoneNumber}
         onChange={handleChange}
       />
+
       <input type="submit" value="Add" />
     </form>
   );
 };
 
-CustomForm.defaultProps = {
+CustomerForm.defaultProps = {
   onSave: () => {}
 };
